@@ -8,6 +8,9 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 SHELL := sh -e
+CFLAGS = $(shell dpkg-buildflags --get CFLAGS)
+CFLAGS+=-g3 -Wno-format-truncation
+export CFLAGS
 
 %:
 	dh  $@ --with autoreconf
