@@ -1,0 +1,5 @@
+1.0.0
+* first working version with supplying mapping of users authenticated
+  via TACACS+ through the pam_tacplus.so plugin.
+
+Dave Olson, June 2016

@@ -1,0 +1,37 @@
+libtacplus-map (1.0.1-cl3u3) RELEASED; urgency=low
+
+  * Fixed problem with local fallback authentication when all TACACS
+    servers are down.
+
+ -- dev-support <dev-support@cumulusnetworks.com>  Tue, 21 Aug 2018 16:23:13 -0700
+
+libtacplus-map (1.0.1-cl3u2) RELEASED; urgency=low
+
+  * tacacs users are now in group netshow (netedit for priv=15), so they
+    can run nclu commands without edits to netd.conf
+
+ -- dev-support <dev-support@cumulusnetworks.com>  Wed, 14 Feb 2018 13:42:56 -0800
+
+libtacplus-map (1.0.1-cl3u1) RELEASED; urgency=low
+
+  * API and map file change to support new user_homedir config variable.
+
+ -- dev-support <dev-support@cumulusnetworks.com>  Tue, 02 May 2017 12:28:44 -0700
+
+libtacplus-map (1.0.0-cl3u2) RELEASED; urgency=low
+
+  * Minor corrections to Copyright and licensing files.
+  * Provide commented-out example allowing priv 15 TACACS users to sudo
+    without password in /etc/sudoers.d/tacplus
+
+ -- dev-support <dev-support@cumulusnetworks.com>  Tue, 29 Nov 2016 16:13:50 -0800
+
+libtacplus-map (1.0.0-cl3eau1) RELEASED; urgency=low
+
+  * Initial release of tacacs user mapping library
+  * libtacplus_map APIs to support local mapping, so that TACACS users do not
+    need to add TACACS+ accounts to /etc/passwd to supply home directory, uid,
+    and gid. TACACS+ users are mapped by privilege level to local tacacs0..15
+
+ -- dev-support <dev-support@cumulusnetworks.com>  Wed, 22 Jun 2016 14:39:32 -0700
+

@@ -1,0 +1,51 @@
+
+libtacplus_map v1.0.0
+June 22, 2016
+
+This library supports local mapping of users authenticated via TACACS with
+the pam_tacplus module.
+
+The TACACS+ users do not need entries in /etc/passwd to supply home directory, uid,
+and gid information.
+
+This is done by creating local users called tacacs0 ... tacacs15 (at least
+one, but up to all 16).   The tacacs user's privilege level is used to select
+the local tacacsN user, starting with an exact match, and working down to 0.
+
+A new libtacplus_map library (map_tacplus_user.c) writes the mappings into
+a local file in /run, and cleans up on exit (for unexpected exits without
+cleanups, the file is validated and cleaned up whenever a new entry is added
+or an old entry removed).
+
+audit_[gs]etloginuid() is used to set a stable uid identifier as well as
+triggering the /proc/$$/sessionid in the process.  These are both recorded
+in the mapping file, along with tty, rhost, etc.
+
+Also see the comments about immutable loginuid in Pam.d.common-example
+in the libpam-tacplus package.
+
+A separate package libnss_tacplus uses the mapping library to do lookups by
+both name and uid.  uid lookups are only possible while a tacacs user is
+logged in.
+
+If multiple tacacs users at the same privilege level are logged in, the
+current behavior is that is that if a call is done from within the login
+session, the correct (login) name will be returned.   If from outside the
+session (audit uid and/or session don't match in the mapping file), the name
+from first map entry is used, much like normal systems where multiple users
+have the same UID.
+
+Enabled -Werror to catch errors early (and fixed a few related items).
+
+This code is based in the pam_tacplus plugin, written by
+Pawel Krawczyk <pawel.krawczyk@hush.com> and Jeroen Nijhof
+<jeroen@jeroennijhof.nl>, as well as others.   It is based
+on version pam_tacplus version 1.3.9.  It uses the libtac
+as found in pam_tacplus.  A few minor changes have been made,
+and libtac is built as a static archive library.
+
+
+Author:
+~~~~~~~
+
+Dave Olson <olson@cumulusnetworks.com>

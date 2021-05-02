@@ -1,0 +1,51 @@
+#!/bin/sh
+# postinst script for libtacplus_map
+
+set -e
+
+case "$1" in
+    configure)
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+# Add the tacacs group and all 16 possible tacacs privilege-level
+# users to the password file, home directories, etc.
+# The accounts are not enabled for local login, since they are
+# only used to provide uid/gid/homedir for the mapped TACACS+
+# logins (and lookups against them).
+
+# --firstuid is used because the installed pam_tacplus configs and audit files are
+# for uid >1000.  Ideally, there should be a way to specify a minimum, but not
+# override adduser.conf if it has a larger value.
+# suppress messages about already existing users, and ignore "errors" if
+# they do
+
+(set +e
+addgroup --quiet tacacs 2>&1 | grep -v 'already exists'
+level=0
+nclu_grp=netshow
+while [ $level -lt 16 ]; do
+    adduser --quiet --firstuid 1000 --disabled-login --ingroup tacacs \
+       --gecos "TACACS+ mapped user at privilege level ${level}" tacacs${level} 
+    # regular tacacs users are allowed to run NCLU 'net show' commands
+    # tacacs15 (tacacs privilege level 15) user is allowed to run NCLU
+    # net configuration commands, also
+    adduser --quiet tacacs${level} $nclu_grp
+    level=$(( level+1 ))
+    [ $level -eq 15 ] && nclu_grp=netedit
+done 2>&1 | grep -v 'already exists'
+exit 0
+)
+
+
+#DEBHELPER#
+
+exit 0

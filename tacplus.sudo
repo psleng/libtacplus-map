@@ -1,0 +1,18 @@
+# This file is part of the libtacplus-map package.
+# It allow tacacs privilege level 15 users (mapped to local user tacacs15)
+# to sudo without restrictions, so they can do all switch setup and
+# administration.  The tacacs15 user is added by the same package, and
+# is configured to be a disabled login
+tacacs15	ALL=(ALL:ALL) ALL
+
+# If you want to allow privileged tacacs users (level 15) to execute
+# sudo without a password, comment out the tacacs 15 line above, and
+# uncomment out the line below:
+# tacacs15	ALL=(ALL:ALL) NOPASSWD:NOEXEC: ALL
+
+# Allow any tacacs group login to run this set of commands.  this is just a
+# demonstration.
+# This example uses group tacacs, if you want all tacacs group users
+# to be able to run some commands thorugh sudo.
+# %tacacs	ALL = (root) NOPASSWD:NOEXEC: /usr/bin/whoami
+
