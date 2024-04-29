@@ -21,6 +21,8 @@ esac
 # The accounts are not enabled for local login, since they are
 # only used to provide uid/gid/homedir for the mapped TACACS+
 # logins (and lookups against them).
+# The tacacs15 user is also added to the sudo group, and nclu group netedit
+# rather than netshow (used for tacacs0-14).
 
 # --firstuid is used because the installed pam_tacplus configs and audit files are
 # for uid >1000.  Ideally, there should be a way to specify a minimum, but not
@@ -42,6 +44,7 @@ while [ $level -lt 16 ]; do
     level=$(( level+1 ))
     [ $level -eq 15 ] && nclu_grp=netedit
 done 2>&1 | grep -v 'already exists'
+adduser --quiet tacacs15 sudo 2>&1 | grep -v 'already exists'
 exit 0
 )
 

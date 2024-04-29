@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2016, Cumulus Networks, Inc.  All rights reserved.
+ * Copyright 2015,2016,2017,2018,2019 Cumulus Networks, Inc.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,6 +110,9 @@ static int is_mapmatch(struct tacacs_mapping *map, int which, const char *name,
  * If somebody kills, e.g., the session parent login or sshd, nothing is
  * left around to do the cleanup, and the entry could remain forever.
  * update_loguid() does this on every add and delete.
+ * Returns strdup'ed storage, and caller must free.
+ * If host is non-NULL, data placed there is also strdup'ed, and must be
+ * freed by caller.
  */
 char *lookup_logname(const char *mapname, uid_t auid, unsigned session,
     char **host, uint16_t *flags)
@@ -205,19 +208,21 @@ char *lookup_mapuid(uid_t uid, uid_t auid, unsigned session,
  * and returns the matching mapped name (e.g, tacacs0) if found,
  * otherwise returns the logname argument.  auid and session
  * will most commonly be -1 wildcards for this function.
+ * Returns strdup'ed storage, and caller must free
  */
 char *lookup_mapname(const char *logname, uid_t auid, unsigned session,
     char **host, uint16_t *flags)
 {
     struct tacacs_mapping map;
-    char *mappeduser = (char *)logname; /* if no match, return original */
+    char *mappeduser;
     int fd, cnt;
 
+    mappeduser = strdup(logname); /* if no match, return original */
     if (flags)
         *flags = 0; /* for early returns */
     fd = open(mapfile, O_RDONLY, 0600);
     if(fd == -1)
-        return (char *)logname; /* not using tacacs or might be earlier error */
+        return mappeduser; /* not using tacacs or might be earlier error */
 
     if(flock(fd, LOCK_SH))
         syslog(LOG_WARNING, "%s lock of tacacs client_map_file %s failed: %m, "
@@ -225,6 +230,8 @@ char *lookup_mapname(const char *logname, uid_t auid, unsigned session,
 
     while((cnt=read(fd, &map, sizeof map)) == sizeof map) {
         if(is_mapmatch(&map, MATCH_LOGIN, logname, auid, session)) {
+            if (mappeduser)
+                free(mappeduser);
             mappeduser = strndup(map.tac_mappedname, sizeof map.tac_mappedname);
             if(!mappeduser) {
                 syslog(LOG_WARNING,
@@ -331,10 +338,12 @@ invalid_session(int mapsess)
             char nmbuf[128]; /* always short path */
             char sess_str[16];
             int fd, cnt, sess=0;
-            snprintf(nmbuf, sizeof nmbuf, "/proc/%s/sessionid", dptr->d_name);
+            snprintf(nmbuf, sizeof nmbuf, "/proc/%.111s/sessionid", dptr->d_name);
             fd = open(nmbuf, O_RDONLY);
-            if(fd == -1)
-                syslog(LOG_DEBUG, "%s: %s open fails: %m", libname, nmbuf);
+            if(fd == -1) {
+                if(debug)
+                    syslog(LOG_DEBUG, "%s: %s open fails: %m", libname, nmbuf);
+            }
             else {
                 cnt = read(fd, sess_str, sizeof sess_str - 1);
                 close(fd);
@@ -686,4 +695,51 @@ char *get_user_to_auth(char *pamuser)
      */
     origuser = lookup_logname(pamuser, auid, session, NULL, NULL);
     return origuser ? origuser : pamuser;
+}
+
+/*
+ * Given a mapname (tacacs0...15) return the comma separated list of all
+ * valid lognames in the map db that match that mapname.   Used when doing group
+ * lookups, to replace, e.g. tacacs15 in a group file entry with all users
+ * logged in mapped to tacacs15.
+ * Returned string is strdup'ed, and storage must be freed by caller.
+ * Returns NULL if no matches.
+ */
+char *
+lookup_all_mapped(const char *mapname)
+{
+    struct tacacs_mapping map;
+    int fd, cnt;
+    char *ret = NULL;
+    size_t retlen = 0;
+
+    fd = open(mapfile, O_RDONLY, 0600);
+    if(fd == -1) {
+        if (debug)
+            syslog(LOG_DEBUG, "%s: Can't open mapfile %s: %m", libname,
+                   mapfile);
+        return NULL;
+    }
+
+    while((cnt=read(fd, &map, sizeof map)) == sizeof map) {
+        size_t llen;
+        char *uniq;
+        if (!map.tac_logname[0] || strcmp(map.tac_mappedname, mapname))
+            continue;
+        llen = strlen(map.tac_logname);
+        if (ret) { /* skip if already in our returned string */
+            uniq = strstr(ret, map.tac_logname);
+            if (uniq && (uniq[llen] == '\0' || uniq[llen] == ',') &&
+                (uniq == ret || uniq[-1] == ',')) {
+                continue;
+            }
+        }
+        ret = realloc(ret, llen+retlen+1+(ret?1:0));
+        if (retlen)
+            ret[retlen++] = ',';
+        strncpy(ret+retlen, map.tac_logname, llen+1);
+        retlen += llen;
+    }
+    close(fd);
+    return ret;
 }

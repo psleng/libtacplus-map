@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2016, Cumulus Networks, Inc.  All rights reserved.
+ * Copyright 2015, 2016, 2017, 2019 Cumulus Networks, Inc.  All rights reserved.
  * All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@
 #include <pwd.h>
 #include <utmp.h>
 
-#define MAP_TACPLUS_FILE "/var/run/tacacs_client_map"
+#define MAP_TACPLUS_FILE "/run/tacacs_client_map"
 
 #define MAP_FILE_VERSION 2 /*  version two adds tac_mapflags (compatible) */
 
@@ -68,7 +68,7 @@ unsigned map_get_sessionid(void); /* return the sessionid for this session */
  * returns the name passed as first argument.  Passing name as NULL
  * requests match on auid and session only.
  *
- * If the returned pointer != first arg and non-NULL, caller should free it.
+ * The caller must free the returned string, if not NULL.
  *
  * This only works while a mapped user is logged in, and since the auid and
  * session are lookup keys, only for processes that are descendents
@@ -99,6 +99,16 @@ char *lookup_mapuid(uid_t uid, uid_t auid, unsigned session,
  */
 char *lookup_mapname(const char *logname, uid_t auid, unsigned session,
     char **host, uint16_t *flags);
+
+/*
+ * Given a mapname (tacacs0...15) return the comma separated list of all
+ * valid lognames in the map db that match that mapname.   Used when doing
+ * group lookups, to replace, e.g. tacacs15 in a group file entry with all
+ * users logged in mapped to tacacs15.
+ * Returned string is strdup'ed, and storage must be freed by caller.
+ * Returns NULL if no matches.
+ */
+char *lookup_all_mapped(const char *mapname);
 
 /* This is not a public entry point, it's a helper routine for pam_tacplus */
 void __update_loguid(char *);

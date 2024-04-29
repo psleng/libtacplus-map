@@ -7,4 +7,5 @@ libtacplus_map.so.1 libtacplus-map1 #MINVER#
  map_get_sessionid@Base 1.0.0
  set_auid_immutable@Base 1.0.0
  update_mapuser@Base 1.0.0
+ lookup_all_mapped@Base 1.0.1-cl4u1
 

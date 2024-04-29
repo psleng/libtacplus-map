@@ -3,8 +3,11 @@ Section: admin
 Priority: extra
 Maintainer: dev-support <dev-support@cumulusnetworks.com>
 Build-Depends: debhelper (>= 9), dh-autoreconf, autoconf-archive, libaudit-dev, git
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 Homepage: http://www.cumulusnetworks.com
+XS-Build-Source: True
+XS-Cumulus-Valid-Arch: amd64 armel
+XBCS-Vcs-Hash: b68ca01f1e769311831d91e47dbf372527d36764
 
 Package: libtacplus-map1
 Architecture: any
@@ -12,6 +15,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, libaudit1
 Description: Library for mapping TACACS+ users without local /etc/passwd entries
  APIs to support local mapping, so that TACACS users do not need tacacs user
  accounts to /etc/passwd to supply home directory, uid, and gid.
+XBCS-Vcs-Hash: b68ca01f1e769311831d91e47dbf372527d36764
 
 Package: libtacplus-map-dev
 Section: libdevel
@@ -20,3 +24,5 @@ Depends: ${misc:Depends}, libtacplus-map1 (= ${binary:Version}), libc-dev
 Description: Development files for TACACS+ user-mapping library
  Header files and .so shared library link for APIs to support local TACACS
  mapping of accounts
+XBCS-Vcs-Hash: b68ca01f1e769311831d91e47dbf372527d36764
+

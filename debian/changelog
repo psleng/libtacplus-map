@@ -1,3 +1,17 @@
+libtacplus-map (1.0.1-cl5.1.0u9) RELEASED; urgency=medium
+
+  * new build for 5.1.0 from original hash
+    b68ca01f1e769311831d91e47dbf372527d36764
+
+ -- root <root@3da22e72fb7c>  Tue, 22 Feb 2022 22:55:22 +0000
+
+libtacplus-map (1.0.1-cl4u1) RELEASED; urgency=medium
+
+   * First 4.0 release
+   * Added support for tacacs group lookups
+
+ -- dev-support <dev-support@cumulusnetworks.com>  Mon, 30 Sep 2019 16:50:42 -0700
+
 libtacplus-map (1.0.1-cl3u3) RELEASED; urgency=low
 
   * Fixed problem with local fallback authentication when all TACACS
