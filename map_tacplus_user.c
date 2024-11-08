@@ -727,6 +727,12 @@ lookup_all_mapped(const char *mapname)
         if (!map.tac_logname[0] || strcmp(map.tac_mappedname, mapname))
             continue;
         llen = strlen(map.tac_logname);
+	if (llen >= sizeof(map.tac_logname))
+	{
+           llen = sizeof(map.tac_logname) - 1;
+           map.tac_logname[llen] = 0;
+        }
+   
         if (ret) { /* skip if already in our returned string */
             uniq = strstr(ret, map.tac_logname);
             if (uniq && (uniq[llen] == '\0' || uniq[llen] == ',') &&
