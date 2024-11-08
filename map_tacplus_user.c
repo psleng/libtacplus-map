@@ -385,7 +385,7 @@ chk_cleanup_map(int fd)
 
     while((cnt=read(fd, &tmap, sizeof tmap)) == sizeof tmap) {
         if(!tmap.tac_mapversion ||  tmap.tac_mapversion > MAP_FILE_VERSION ||
-            ((tmap.tac_mapuid || tmap.tac_mappedname) &&
+            ((tmap.tac_mapuid || strlen(tmap.tac_mappedname)) &&
             tmap.tac_session && invalid_session(tmap.tac_session))) {
             off_t off = (off_t)-cnt;
             syslog(LOG_WARNING, "%s: Cleaning up stale entry in %s uid=%d, "
