@@ -12,7 +12,7 @@ lib_LTLIBRARIES = libtacplus_map.la
 
 libtacplus_map_la_SOURCES = map_tacplus_user.h  \
 	map_tacplus_user.c
-libtacplus_map_la_CFLAGS = $(AM_CFLAGS) -Ilibtac/include
+libtacplus_map_la_CFLAGS = $(AM_CFLAGS) -Ilibtac/include -Wno-error=address -Wno-error=stringop-truncation
 libtacplus_map_la_LDFLAGS = -version-info 1:0:0 -shared -Wl,--no-undefined
 libtacplus_map_la_LIBADD = -L.libs -laudit
 
@@ -26,7 +26,7 @@ MAINTAINERCLEANFILES = Makefile.in config.h.in configure aclocal.m4 \
                        config/install-sh config/ltmain.sh config/missing
 
 clean-generic:
-	rm -rf autom4te*.cache 
+	rm -rf autom4te*.cache
 	rm -f *.rej *.orig *.lang dumpmap
 
 sudoersd = $(DESTDIR)$(sysconfdir)/sudoers.d
